@@ -12,6 +12,7 @@ server:
 spring:
   application:
     name: sboard
+    version: ${version}
   datasource:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     password: 1234
@@ -31,3 +32,8 @@ spring:
         show_sql: true
     show-sql: true
 
+  security:
+    user:
+      name: user
+      password: 1234
+      roles: ADMIN
