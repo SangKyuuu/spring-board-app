@@ -31,6 +31,87 @@ public class FileService {
         log.info("@@@@@@@@@@@@@@@@ FileService upload start");
 
         File fileUploadPath = new File(uploadPath);
+        log.info("@@@ Upload path from config: {}", uploadPath);
+        log.info("@@@ File upload path object: {}", fileUploadPath.getAbsolutePath());
+
+        if(!fileUploadPath.exists()){
+            boolean created = fileUploadPath.mkdir();
+            log.info("@@@ Directory created: {}", created);
+        } else {
+            log.info("@@@ Directory already exists");
+        }
+
+        String absolutePath = fileUploadPath.getAbsolutePath();
+        log.info("@@@ Absolute path: {}", absolutePath);
+
+        List<MultipartFile> fileList = articleDTO.getFiles();
+        log.info("@@@ File list retrieved, size: {}", fileList != null ? fileList.size() : "null");
+
+        //반환용 리스트 생성
+        List<FileDTO> fileDTOList = new ArrayList<>();
+
+        try {
+            for(int i = 0; i < fileList.size(); i++){
+                MultipartFile multiFile = fileList.get(i);
+                log.info("@@@ Processing file {}: {}", i, multiFile != null ? "not null" : "null");
+
+                if(multiFile != null) {
+                    log.info("@@@ File {} - Original name: {}, Size: {}, Empty: {}",
+                            i, multiFile.getOriginalFilename(), multiFile.getSize(), multiFile.isEmpty());
+                }
+
+                //파일 첨부 했으면
+                if(multiFile != null && !multiFile.isEmpty()){
+                    log.info("@@@ File {} is not empty, processing...", i);
+
+                    String oriName = multiFile.getOriginalFilename();
+                    log.info("@@@ Original name: {}", oriName);
+
+                    String ext = oriName.substring(oriName.lastIndexOf("."));
+                    log.info("@@@ Extension: {}", ext);
+
+                    String savedName = UUID.randomUUID().toString() + ext;
+                    log.info("@@@ Generated saved name: {}", savedName);
+
+                    try {
+                        //파일 저장
+                        File destFile = new File(absolutePath, savedName);
+                        log.info("@@@ Destination file: {}", destFile.getAbsolutePath());
+
+                        multiFile.transferTo(destFile);
+                        log.info("@@@ File transferred successfully");
+
+                        //반환용 파일 객체
+                        FileDTO fileDTO = FileDTO.builder()
+                                .oname(oriName)
+                                .sname(savedName)
+                                .build();
+
+                        fileDTOList.add(fileDTO);
+                        log.info("@@@ FileDTO created and added: {}", fileDTO);
+
+                    } catch (IOException e) {
+                        log.error("@@@ IOException during file transfer: {}", e.getMessage(), e);
+                    } catch (Exception e) {
+                        log.error("@@@ Exception during file processing: {}", e.getMessage(), e);
+                    }
+                } else {
+                    log.info("@@@ File {} is null or empty, skipping", i);
+                }
+            }
+        } catch (Exception e) {
+            log.error("@@@ Exception in main loop: {}", e.getMessage(), e);
+        }
+
+        log.info("@@@@@@@@@@@@@@@@ FileService upload end - processed {} files", fileDTOList.size());
+        return fileDTOList;
+    }
+
+
+    /*public List<FileDTO> upload(ArticleDTO articleDTO){
+        log.info("@@@@@@@@@@@@@@@@ FileService upload start");
+
+        File fileUploadPath = new File(uploadPath);
 
         if(!fileUploadPath.exists()){
             fileUploadPath.mkdir();
@@ -68,7 +149,7 @@ public class FileService {
             }
         }
         return fileDTOList;
-    }
+    }*/
     public void download(){}
 
     public void getFile(){}

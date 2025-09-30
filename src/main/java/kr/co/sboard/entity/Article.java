@@ -3,6 +3,7 @@ package kr.co.sboard.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.LocalDateTime;
 
@@ -31,4 +32,11 @@ public class Article {
     @CreationTimestamp
     private LocalDateTime wdate;
 
+    //추가필드
+    @Transient
+    private String nick;
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
 }
