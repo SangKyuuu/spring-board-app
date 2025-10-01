@@ -3,7 +3,6 @@ package kr.co.sboard.dto;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -41,4 +40,6 @@ public class ArticleDTO {
 
     //추가필드
     private String nick;
+
+    private List<FileDTO> fileList;
 }
